@@ -34,6 +34,7 @@ class MediaDownloader:
     def _get_ydl_opts(self, output_template: str, audio_only: bool = False) -> dict:
         """
         yt-dlp uchun sozlamalar (options) lug'atini qaytaradi.
+        Android client va user_agent yordamida blokirovkalarni aylanib o'tadi.
         """
         base_opts = {
             "outtmpl": output_template,
@@ -43,7 +44,9 @@ class MediaDownloader:
             "max_filesize": MAX_FILE_SIZE_MB * 1024 * 1024,
             "retries": 10,
             "socket_timeout": 60,
-            "cookiefile": "services/cookies.txt",  # Kuki fayli manzili to'g'rilandi
+            # Eng samarali sozlamalar
+            "user_agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
+            "extractor_args": {"youtube": {"player_client": "android"}},
         }
 
         if audio_only:
@@ -57,7 +60,6 @@ class MediaDownloader:
             })
         else:
             base_opts.update({
-                # Eng barqaror format tanlash usuli
                 "format": "best[ext=mp4]/best",
                 "merge_output_format": "mp4",
             })
@@ -93,10 +95,10 @@ class MediaDownloader:
 
         except yt_dlp.utils.DownloadError as e:
             logger.warning(f"yt-dlp DownloadError: {e}")
-            return DownloadResult(success=False, error="Ushbu havoladan video yuklab bo'lmadi. Havolani tekshiring.")
+            return DownloadResult(success=False, error="Video yuklab bo'lmadi. Havolani tekshiring.")
         except Exception as e:
             logger.exception(f"Kutilmagan xatolik yuklashda: {e}")
-            return DownloadResult(success=False, error="Kutilmagan xatolik yuz berdi. Keyinroq urinib ko'ring.")
+            return DownloadResult(success=False, error="Kutilmagan xatolik yuz berdi.")
 
     async def download(self, url: str, audio_only: bool = False) -> DownloadResult:
         """
