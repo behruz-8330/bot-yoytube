@@ -1,3 +1,7 @@
+"""
+Downloader service - yt-dlp yordamida video/audio yuklab olish logikasi.
+"""
+
 import asyncio
 import os
 import uuid
@@ -37,9 +41,9 @@ class MediaDownloader:
             "no_warnings": True,
             "noplaylist": True,
             "max_filesize": MAX_FILE_SIZE_MB * 1024 * 1024,
-            "retries": 3,
-            "socket_timeout": 30,
-            "cookiefile": "services/cookies.txt",  # Kuki fayli manzili
+            "retries": 10,
+            "socket_timeout": 60,
+            "cookiefile": "services/cookies.txt",  # Kuki fayli manzili to'g'rilandi
         }
 
         if audio_only:
@@ -53,7 +57,8 @@ class MediaDownloader:
             })
         else:
             base_opts.update({
-                "format": "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+                # Eng barqaror format tanlash usuli
+                "format": "best[ext=mp4]/best",
                 "merge_output_format": "mp4",
             })
 
